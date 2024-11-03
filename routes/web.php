@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Middleware\MerchantEnsureEmailIsVerified;
+use App\Http\Middleware\MerchantMiddleware;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -24,10 +26,15 @@ require __DIR__ . '/auth.php';
 // Merchant Routes
 // *****
 
-Route::prefix('merchant')->name('merchant.')->group(
-    function () {
+Route::prefix('merchant')->name('merchant.')->group(function () {
+
+    // Public routes (login, register) without middleware
+  
+
+    // Routes that require authentication
+    Route::middleware([MerchantMiddleware::class,MerchantEnsureEmailIsVerified::class])->group(function(){
         Route::view('/', 'merchant.index')->name('index');
-        Route::view('/register', 'merchant.auth.register')->name('register');
-        Route::view('/login', 'merchant.auth.login')->name('login');
-    }
-);
+    });
+
+    require __DIR__ . '/merchantAuth.php'; // If you need more authenticated merchant routes
+});
